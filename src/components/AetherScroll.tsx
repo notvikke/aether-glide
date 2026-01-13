@@ -70,7 +70,6 @@ export default function AetherScroll({ onLoaderProgress, hoverMode }: { onLoader
 
         const img = images[index];
         if (img) {
-            // Responsive sizing: object-cover logic (Fills screen, no black bars)
             const canvasWidth = canvas.width;
             const canvasHeight = canvas.height;
             const imgRatio = img.width / img.height;
@@ -78,29 +77,40 @@ export default function AetherScroll({ onLoaderProgress, hoverMode }: { onLoader
 
             let drawWidth, drawHeight, offsetX, offsetY;
 
-            // To cover:
-            // If image is flatter/wider than screen (imgRatio > canvasRatio), we must match height and let width overflow/crop.
-            // If image is taller/narrower than screen (imgRatio < canvasRatio), we must match width and let height overflow/crop.
+            // Smart-Scale Logic:
+            // Mobile Portrait (canvasRatio < 1): Prioritize fitting width (subject visibility)
+            // Desktop (canvasRatio >= 1): Prioritize Cover (visual immersion)
 
-            if (imgRatio > canvasRatio) {
-                drawHeight = canvasHeight;
-                drawWidth = canvasHeight * imgRatio;
-                offsetY = 0;
-                offsetX = (canvasWidth - drawWidth) / 2;
-            } else {
+            const isPortrait = canvasRatio < 1;
+
+            if (isPortrait) {
+                // "Fill Width" logic (like Contain, but we trust the background matches)
                 drawWidth = canvasWidth;
                 drawHeight = canvasWidth / imgRatio;
                 offsetX = 0;
                 offsetY = (canvasHeight - drawHeight) / 2;
-            }
 
-            // Optional: Add a subtle scale transform to simulate high-res 'breathing' 
-            // or just draw slightly larger to prevent subpixel edge artifacts
-            const scale = 1.01;
-            drawWidth *= scale;
-            drawHeight *= scale;
-            offsetX -= (drawWidth - (drawWidth / scale)) / 2;
-            offsetY -= (drawHeight - (drawHeight / scale)) / 2;
+                // Slight boost to ensure impact
+                const mobileScale = 1.1;
+                drawWidth *= mobileScale;
+                drawHeight *= mobileScale;
+                offsetX = (canvasWidth - drawWidth) / 2;
+                offsetY = (canvasHeight - drawHeight) / 2;
+
+            } else {
+                // Desktop Cover Logic
+                if (imgRatio > canvasRatio) {
+                    drawHeight = canvasHeight;
+                    drawWidth = canvasHeight * imgRatio;
+                    offsetX = (canvasWidth - drawWidth) / 2;
+                    offsetY = 0;
+                } else {
+                    drawWidth = canvasWidth;
+                    drawHeight = canvasWidth / imgRatio;
+                    offsetX = 0;
+                    offsetY = (canvasHeight - drawHeight) / 2;
+                }
+            }
 
             ctx.clearRect(0, 0, canvasWidth, canvasHeight);
             ctx.imageSmoothingEnabled = true;
@@ -161,7 +171,7 @@ export default function AetherScroll({ onLoaderProgress, hoverMode }: { onLoader
 
     return (
         <div ref={containerRef} className="relative h-[600vh] bg-[#050505]">
-            <div className="sticky top-0 w-full h-screen overflow-hidden flex items-center justify-center">
+            <div className="sticky top-0 w-full h-[100dvh] overflow-hidden flex items-center justify-center">
                 <canvas
                     ref={canvasRef}
                     className={`w-full h-full object-cover transition-all duration-1000 ${hoverMode ? 'drop-shadow-[0_0_50px_rgba(0,229,255,0.4)] scale-[1.02]' : ''}`}
@@ -177,37 +187,39 @@ export default function AetherScroll({ onLoaderProgress, hoverMode }: { onLoader
                     />
                 )}
 
-                {/* Text Overlays - Absolute positioned centrally or according to design */}
-                <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center">
+                {/* Text Overlays - Adaptive Placement */}
+                <div className="absolute inset-0 pointer-events-none flex flex-col justify-end md:justify-center items-center pb-20 md:pb-0">
 
-                    <motion.div style={{ opacity: text1Opacity }} className="absolute text-center">
-                        <h1 className="text-6xl md:text-8xl font-bold text-white tracking-tight mb-4 text-glow">
+                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#050505] to-transparent opacity-80 md:opacity-0" />
+
+                    <motion.div style={{ opacity: text1Opacity }} className="absolute text-center z-10 px-4">
+                        <h1 className="text-5xl md:text-8xl font-bold text-white tracking-tight mb-4 text-glow">
                             Aether Glide.
                         </h1>
-                        <p className="text-xl text-gray-400 font-light tracking-widest uppercase">
+                        <p className="text-lg md:text-xl text-gray-400 font-light tracking-widest uppercase">
                             Gravity is Optional.
                         </p>
                     </motion.div>
 
-                    <motion.div style={{ opacity: text2Opacity }} className="absolute text-center">
-                        <h2 className="text-5xl md:text-7xl font-bold text-white mb-2 text-glow">
+                    <motion.div style={{ opacity: text2Opacity }} className="absolute text-center z-10 px-4">
+                        <h2 className="text-4xl md:text-7xl font-bold text-white mb-2 text-glow">
                             Superconducting
                         </h2>
-                        <h2 className="text-5xl md:text-7xl font-bold text-[#00E5FF] box-glow-text">
+                        <h2 className="text-4xl md:text-7xl font-bold text-[#00E5FF] box-glow-text">
                             Mag-Lev.
                         </h2>
                     </motion.div>
 
-                    <motion.div style={{ opacity: text3Opacity }} className="absolute text-center">
-                        <h2 className="text-5xl md:text-7xl font-bold text-white mb-4">
+                    <motion.div style={{ opacity: text3Opacity }} className="absolute text-center z-10 px-4">
+                        <h2 className="text-4xl md:text-7xl font-bold text-white mb-4">
                             The Obsidian Core.
                         </h2>
-                        <p className="text-lg text-gray-400 max-w-lg mx-auto leading-relaxed">
+                        <p className="text-base md:text-lg text-gray-400 max-w-lg mx-auto leading-relaxed">
                             Forged from a single block of compressed carbon nanotubes.
                         </p>
                     </motion.div>
 
-                    <motion.div style={{ opacity: text4Opacity }} className="absolute text-center">
+                    <motion.div style={{ opacity: text4Opacity }} className="absolute text-center z-10 px-4">
                         <h2 className="text-6xl md:text-9xl font-black text-white tracking-tighter text-glow">
                             ASCEND.
                         </h2>
