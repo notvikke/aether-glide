@@ -90,8 +90,11 @@ export default function Home() {
 
       <Shop />
 
-      <footer className="py-8 text-center text-gray-600 text-xs uppercase tracking-widest bg-[#050505] border-t border-white/5 relative z-10">
-        © 2026 Aether Dynamics. All Rights Reserved.
+      <footer className="py-8 text-center text-gray-600 text-xs uppercase tracking-widest bg-[#050505] border-t border-white/5 relative z-10 flex flex-col items-center gap-4">
+        <p>© 2026 Aether Dynamics. All Rights Reserved.</p>
+        <p>
+          Made by <a href="https://notvikke.github.io/portfolio/" target="_blank" rel="noopener noreferrer" className="text-[#00E5FF] hover:text-white transition-colors duration-300">Vignesh</a>
+        </p>
       </footer>
     </main>
   );
