@@ -1,65 +1,98 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useEffect } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import AetherScroll from '@/components/AetherScroll';
+import Specs from '@/components/Specs';
+import Shop from '@/components/Shop';
+import Navbar from '@/components/Navbar';
+import TechSection from '@/components/TechSection';
+import Timeline from '@/components/Timeline';
+import Gallery from '@/components/Gallery';
 
 export default function Home() {
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hoverMode, setHoverMode] = useState(false);
+
+  // Once loading hits 100%, delay slightly then fade out
+  useEffect(() => {
+    if (loadingProgress >= 100) {
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 500);
+    }
+  }, [loadingProgress]);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <main className="bg-[#050505] min-h-screen text-white selection:bg-[#00E5FF] selection:text-black">
+
+      {/* Navbar */}
+      <Navbar hoverMode={hoverMode} setHoverMode={setHoverMode} />
+
+      {/* High-End Preloader */}
+      <AnimatePresence mode="wait">
+        {isLoading && (
+          <motion.div
+            key="preloader"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: 0.8, ease: "easeInOut" } }}
+            className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#050505]"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+            {/* Logo Breathing Animation */}
+            <motion.div
+              animate={{ opacity: [0.4, 1, 0.4] }}
+              transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+              className="mb-8"
+            >
+              {/* Custom Aether Logo SVG */}
+              <svg width="120" height="120" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                {/* Central Beam */}
+                <path d="M50 10L50 90" stroke="#00E5FF" strokeWidth="2" strokeLinecap="round" className="drop-shadow-[0_0_10px_rgba(0,229,255,0.8)]" />
+                {/* Left Wing */}
+                <path d="M45 20C20 20 10 40 10 60C10 70 20 80 45 80" stroke="#EDEDED" strokeWidth="2" strokeLinecap="round" fill="none" />
+                {/* Right Wing */}
+                <path d="M55 20C80 20 90 40 90 60C90 70 80 80 55 80" stroke="#EDEDED" strokeWidth="2" strokeLinecap="round" fill="none" />
+                {/* Inner accents */}
+                <circle cx="50" cy="50" r="4" fill="#00E5FF" className="box-glow" />
+              </svg>
+            </motion.div>
+
+            {/* Percentage Counter */}
+            <div className="flex flex-col items-center gap-2">
+              <span className="text-4xl font-mono font-light text-white tracking-widest">
+                {loadingProgress}%
+              </span>
+              <div className="w-64 h-1 bg-white/10 rounded-full overflow-hidden">
+                <motion.div
+                  className="h-full bg-[#00E5FF] box-glow"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${loadingProgress}%` }}
+                  transition={{ ease: "easeOut" }}
+                />
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AetherScroll onLoaderProgress={setLoadingProgress} hoverMode={hoverMode} />
+
+      <div id="specs">
+        <Specs />
+      </div>
+
+      <TechSection />
+
+      <Timeline />
+
+      <Gallery />
+
+      <Shop />
+
+      <footer className="py-8 text-center text-gray-600 text-xs uppercase tracking-widest bg-[#050505] border-t border-white/5 relative z-10">
+        © 2026 Aether Dynamics. All Rights Reserved.
+      </footer>
+    </main>
   );
 }
